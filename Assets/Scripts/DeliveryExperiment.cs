@@ -384,7 +384,7 @@ public class DeliveryExperiment : CoroutineExperiment
 
     private IEnumerator DoFixation(float time, bool practice = false)
     {
-        scriptedEventReporter.ReportScriptedEvent("start fixation", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("start fixation");
         BlackScreen();
 
         if (practice)
@@ -396,7 +396,7 @@ public class DeliveryExperiment : CoroutineExperiment
                                                            continueText: "");
 
         yield return messageImageDisplayer.DisplayMessageTimed(messageImageDisplayer.general_bigger_message_display, time);
-        scriptedEventReporter.ReportScriptedEvent("stop fixation", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("stop fixation");
     }
 
     private void WorldScreen()
@@ -437,7 +437,7 @@ public class DeliveryExperiment : CoroutineExperiment
 
     private IEnumerator DoFreeRecall(int trialNumber, int continuousTrialNum, bool practice = false)
     {
-        scriptedEventReporter.ReportScriptedEvent("start free recall", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("start free recall");
         BlackScreen();
         textDisplayer.ClearText();
 
@@ -469,12 +469,12 @@ public class DeliveryExperiment : CoroutineExperiment
         lowBeep.Play();
         scriptedEventReporter.ReportScriptedEvent("sound played", new Dictionary<string, object>() { { "sound name", "low beep" }, { "sound duration", lowBeep.clip.length.ToString() } });
         BlackScreen();
-        scriptedEventReporter.ReportScriptedEvent("stop free recall", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("stop free recall");
     }
 
     private IEnumerator DoCuedRecall(int trialNumber, int continuousTrialNum, bool practice = false)
     {
-        scriptedEventReporter.ReportScriptedEvent("start cued recall", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("start cued recall");
         BlackScreen();
         this_trial_presented_stores.Shuffle(rng);
         Debug.Log(this_trial_presented_stores);
@@ -536,12 +536,12 @@ public class DeliveryExperiment : CoroutineExperiment
             textDisplayer.ClearText();
         }
         messageImageDisplayer.SetCuedRecallMessage(false);
-        scriptedEventReporter.ReportScriptedEvent("stop cued recall", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("stop cued recall");
     }
 
     private IEnumerator DoFinalRecall(Environment environment, int subSessionNum)
     {
-        scriptedEventReporter.ReportScriptedEvent("start final recall", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("start final recall");
         SetRamulatorState("RETRIEVAL", true, new Dictionary<string, object>());
 
         string output_directory = UnityEPL.GetDataPath();
@@ -563,14 +563,14 @@ public class DeliveryExperiment : CoroutineExperiment
             foreach (StoreComponent store in environment.stores)
                 AppendWordToLst(lstFilepath, store.GetStoreName());
 
-            scriptedEventReporter.ReportScriptedEvent("final store recall recording start", new Dictionary<string, object>());
+            scriptedEventReporter.ReportScriptedEvent("final store recall recording start");
             soundRecorder.StartRecording(wavFilePath);
 
             textDisplayer.ClearText();
             ClearTitle();
             yield return DoFreeRecallDisplay("all stores recall", STORE_FINAL_RECALL_LENGTH);
 
-            scriptedEventReporter.ReportScriptedEvent("final store recall recording stop", new Dictionary<string, object>());
+            scriptedEventReporter.ReportScriptedEvent("final store recall recording stop");
             soundRecorder.StopRecording();
             textDisplayer.ClearText();
             lowBeep.Play();
@@ -591,13 +591,13 @@ public class DeliveryExperiment : CoroutineExperiment
         foreach (string deliveredObject in all_presented_objects)
             AppendWordToLst(lstFilepath, deliveredObject);
 
-        scriptedEventReporter.ReportScriptedEvent("final object recall recording start", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("final object recall recording start");
         soundRecorder.StartRecording(wavFilePath);
 
         textDisplayer.ClearText();
         ClearTitle();
         yield return DoFreeRecallDisplay("all objects recall", FINAL_RECALL_LENGTH);
-        scriptedEventReporter.ReportScriptedEvent("final object recall recording stop", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("final object recall recording stop");
         soundRecorder.StopRecording();
 
         textDisplayer.ClearText();
@@ -605,7 +605,7 @@ public class DeliveryExperiment : CoroutineExperiment
         scriptedEventReporter.ReportScriptedEvent("sound played", new Dictionary<string, object>() { { "sound name", "low beep" }, { "sound duration", lowBeep.clip.length.ToString() } });
 
         SetRamulatorState("RETRIEVAL", false, new Dictionary<string, object>());
-        scriptedEventReporter.ReportScriptedEvent("stop final recall", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("stop final recall");
     }
 
     private IEnumerator DoFamiliarization()
@@ -619,7 +619,7 @@ public class DeliveryExperiment : CoroutineExperiment
         if (Config.skipTownLearning || InputManager.GetButton("Secret"))
             yield break;
 
-        scriptedEventReporter.ReportScriptedEvent("start town learning", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("start town learning");
         messageImageDisplayer.please_find_the_blah_reminder.SetActive(true);
 
         this_trial_presented_stores = new List<StoreComponent>();
@@ -664,7 +664,7 @@ public class DeliveryExperiment : CoroutineExperiment
         }
 
         messageImageDisplayer.please_find_the_blah_reminder.SetActive(false);
-        scriptedEventReporter.ReportScriptedEvent("stop town learning", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("stop town learning");
     }
 
     private IEnumerator DoDeliveries(Environment environment, int trialNumber, int continuousTrialNum, bool practice = false)
@@ -803,14 +803,14 @@ public class DeliveryExperiment : CoroutineExperiment
         SetRamulatorState("ENCODING", false, new Dictionary<string, object>());
 
         if (practice)
-            scriptedEventReporter.ReportScriptedEvent("stop practice deliveries", new Dictionary<string, object>());
+            scriptedEventReporter.ReportScriptedEvent("stop practice deliveries");
         else
-            scriptedEventReporter.ReportScriptedEvent("stop deliveries", new Dictionary<string, object>());
+            scriptedEventReporter.ReportScriptedEvent("stop deliveries");
     }
 
     private IEnumerator DoTrials(Environment environment, int numTrials, int subSessionNum, bool practice = false, int trialNumOffset = 0)
     {
-        scriptedEventReporter.ReportScriptedEvent("start trials", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("start trials");
         for (int trialNumber = 0; trialNumber < numTrials; trialNumber++)
         {
             int continuousTrialNum = trialNumber + trialNumOffset;
@@ -895,7 +895,7 @@ public class DeliveryExperiment : CoroutineExperiment
                 yield return DoFixation(PAUSE_BEFORE_RETRIEVAL, practice);
             yield return DoRecall(trialNumber, continuousTrialNum, practice);
         }
-        scriptedEventReporter.ReportScriptedEvent("stop trials", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("stop trials");
     }
 
     private void ColorPointer(Color color)
@@ -947,7 +947,7 @@ public class DeliveryExperiment : CoroutineExperiment
         yield return PointArrowToStore(nextStore.gameObject, ARROW_ROTATION_SPEED, ARROW_CORRECTION_TIME);
         while (!InputManager.GetButtonDown("Continue"))
             yield return null;
-        scriptedEventReporter.ReportScriptedEvent("pointer message cleared", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("pointer message cleared");
         pointerParticleSystem.Stop();
         pointer.SetActive(false);
         pointerMessage.SetActive(false);
@@ -955,13 +955,13 @@ public class DeliveryExperiment : CoroutineExperiment
 
     private IEnumerator DoBreak()
     {
-        scriptedEventReporter.ReportScriptedEvent("start required break", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("start required break");
         BlackScreen();
         textDisplayer.DisplayText("break prompt", LanguageSource.GetLanguageString("break"));
         while (!Input.GetKeyDown(KeyCode.Space))
             yield return null;
         textDisplayer.ClearText();
-        scriptedEventReporter.ReportScriptedEvent("stop required break", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("stop required break");
     }
 
     private IEnumerator DoMovie(int[] movieIndices)
@@ -973,7 +973,7 @@ public class DeliveryExperiment : CoroutineExperiment
                              LanguageSource.GetLanguageString("nicls movie"),
                              VideoSelector.VideoType.NiclsMovie,
                              movieIndices[sessionNumber]);
-        scriptedEventReporter.ReportScriptedEvent("stop movie", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("stop movie");
     }
 
     private bool lastPointingIndicatorState = false;
@@ -981,7 +981,7 @@ public class DeliveryExperiment : CoroutineExperiment
     {
         if (enable) {
             if (lastPointingIndicatorState != enable)
-                scriptedEventReporter.ReportScriptedEvent("continuous pointer", new Dictionary<string, object>());
+                scriptedEventReporter.ReportScriptedEvent("continuous pointer");
             pointer.SetActive(true);
             ColorPointer(new Color(0.5f, 0.5f, 1f));
             yield return PointArrowToStore(nextStore.gameObject);
@@ -1117,7 +1117,7 @@ public class DeliveryExperiment : CoroutineExperiment
 
     private IEnumerator DoEfrKeypressCheck()
     {
-        scriptedEventReporter.ReportScriptedEvent("start efr keypress check", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("start efr keypress check");
         BlackScreen();
 
         // Display intro message
@@ -1143,7 +1143,7 @@ public class DeliveryExperiment : CoroutineExperiment
         yield return messageImageDisplayer.DisplayMessageTimedLRKeypressBold(
             messageImageDisplayer.efr_display, 1f, efrLeftLogMsg, efrRightLogMsg);
 
-        scriptedEventReporter.ReportScriptedEvent("stop efr keypress check", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("stop efr keypress check");
     }
 
     private IEnumerator DoNewEfrKeypressCheck()
@@ -1151,7 +1151,7 @@ public class DeliveryExperiment : CoroutineExperiment
         if (Config.skipNewEfrKeypressCheck)
             yield break;
 
-        scriptedEventReporter.ReportScriptedEvent("start efr keypress check", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("start efr keypress check");
         BlackScreen();
 
         // Display intro message
@@ -1164,12 +1164,12 @@ public class DeliveryExperiment : CoroutineExperiment
         yield return messageImageDisplayer.DisplayMessage(
             messageImageDisplayer.general_bigger_message_display, "EfrReject");
 
-        scriptedEventReporter.ReportScriptedEvent("stop efr keypress check", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("stop efr keypress check");
     }
 
     private IEnumerator DoEfrKeypressPractice()
     {
-        scriptedEventReporter.ReportScriptedEvent("start efr keypress practice", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("start efr keypress practice");
         BlackScreen();
 
         // Display intro message
@@ -1212,7 +1212,7 @@ public class DeliveryExperiment : CoroutineExperiment
             }
         }
 
-        scriptedEventReporter.ReportScriptedEvent("stop efr keypress practice", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("stop efr keypress practice");
     }
 
     private IEnumerator DoNewEfrKeypressPractice()
@@ -1220,7 +1220,7 @@ public class DeliveryExperiment : CoroutineExperiment
         if (Config.skipNewEfrKeypressPractice)
             yield break;
 
-        scriptedEventReporter.ReportScriptedEvent("start efr keypress practice", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("start efr keypress practice");
         BlackScreen();
 
         // Display intro message
@@ -1235,7 +1235,7 @@ public class DeliveryExperiment : CoroutineExperiment
             yield return messageImageDisplayer.DisplayMessage(
                 messageImageDisplayer.general_bigger_message_display, "EfrReject");
 
-        scriptedEventReporter.ReportScriptedEvent("stop efr keypress practice", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("stop efr keypress practice");
     }
 
     //WAITING, INSTRUCT, COUNTDOWN, ENCODING, WORD, DISTRACT, RETRIEVAL
@@ -1260,19 +1260,19 @@ public class DeliveryExperiment : CoroutineExperiment
 
     private IEnumerator WaitForClassifier(NiclsClassifierType niclsClassifierType)
     {
-        scriptedEventReporter.ReportScriptedEvent("start classifier wait", new Dictionary<string, object>());
+        scriptedEventReporter.ReportScriptedEvent("start classifier wait");
         Debug.Log(Enum.GetName(typeof(NiclsClassifierType), niclsClassifierType));
         WaitUntilWithTimeout waitForClassifier = null;
         switch (niclsClassifierType)
         {
             case NiclsClassifierType.Pos:
-                waitForClassifier = new WaitUntilWithTimeout(niclsInterface.classifierReady, 5);
+                waitForClassifier = new WaitUntilWithTimeout(niclsInterface.classifierInPosState, 5);
                 yield return waitForClassifier;
                 scriptedEventReporter.ReportScriptedEvent("stop classifier wait",
                     new Dictionary<string, object> { { "type", "Pos" }, { "timed out", waitForClassifier.timedOut() ? 1 : 0 } });
                 break;
             case NiclsClassifierType.Neg:
-                waitForClassifier = new WaitUntilWithTimeout(niclsInterface.classifierNotReady, 5);
+                waitForClassifier = new WaitUntilWithTimeout(niclsInterface.classifierInNegState, 5);
                 yield return waitForClassifier;
                 scriptedEventReporter.ReportScriptedEvent("stop classifier wait",
                     new Dictionary<string, object> { { "type", "Neg" }, { "timed out", waitForClassifier.timedOut() ? 1 : 0 } });
