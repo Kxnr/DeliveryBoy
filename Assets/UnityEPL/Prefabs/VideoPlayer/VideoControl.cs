@@ -1,24 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Luminosity.IO;
 
 public class VideoControl : MonoBehaviour
 {
-    public UnityEngine.KeyCode pauseToggleKey = UnityEngine.KeyCode.Space;
-    public UnityEngine.KeyCode deactivateKey = UnityEngine.KeyCode.Escape;
     public UnityEngine.Video.VideoPlayer videoPlayer;
     public bool deactivateWhenFinished = true;
 
     void Update()
     {
-        if (Input.GetKeyDown(pauseToggleKey))
-        {
-            if (videoPlayer.isPlaying)
-                videoPlayer.Pause();
-            else
-                videoPlayer.Play();
-        }
-        if (Input.GetKeyDown(deactivateKey))
+        //if (Input.GetKeyDown(KeyCode.Space)) // Pause
+        //{
+        //    if (videoPlayer.isPlaying)
+        //        videoPlayer.Pause();
+        //    else
+        //        videoPlayer.Play();
+        //}
+        // JPB: TODO: Change this
+        
+        if (InputManager.GetButtonDown("Secret")) // Stop
         {
             videoPlayer.Stop();
             gameObject.SetActive(false);

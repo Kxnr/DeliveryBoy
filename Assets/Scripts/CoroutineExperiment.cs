@@ -20,6 +20,8 @@ public abstract class CoroutineExperiment : MonoBehaviour
     public AudioSource lowBeep;
     public AudioSource lowerBeep;
 
+    public ScriptedEventReporter scriptedEventReporter;
+
     protected abstract void SetRamulatorState(string stateName, bool state, Dictionary<string, object> extraData);
 
     protected IEnumerator DoSubjectSessionQuitPrompt(int sessionNumber, string message)
@@ -102,7 +104,7 @@ public abstract class CoroutineExperiment : MonoBehaviour
         titleMessage.SetActive(false);
     }
 
-    protected IEnumerator DoVideo(string playPrompt, string repeatPrompt, VideoSelector.VideoType videoType, int videoIndex = 0)
+    protected IEnumerator DoVideo(string playPrompt, string repeatPrompt, VideoSelector.VideoType videoType, int videoIndex = -1)
     {
         yield return PressAnyKey(playPrompt);
 
@@ -111,22 +113,26 @@ public abstract class CoroutineExperiment : MonoBehaviour
         {
             //start video player and wait for it to stop playing
             SetRamulatorState("INSTRUCT", true, new Dictionary<string, object>());
-            videoSelector.SetIntroductionVideo(videoType, videoIndex);
+            videoSelector.SetVideo(videoType, videoIndex);
+            scriptedEventReporter.ReportScriptedEvent("start video", new Dictionary<string, object> { { "video number", videoIndex } });
             videoPlayer.StartVideo();
             while (videoPlayer.IsPlaying())
                 yield return null;
+            scriptedEventReporter.ReportScriptedEvent("stop video", new Dictionary<string, object> { { "video number", videoIndex } });
             SetRamulatorState("INSTRUCT", false, new Dictionary<string, object>());
 
             SetRamulatorState("WAITING", true, new Dictionary<string, object>());
-            textDisplayer.DisplayText("repeat video prompt", repeatPrompt);
-            while (!InputManager.GetKeyDown(KeyCode.Y) && !InputManager.GetKeyDown(KeyCode.N))
+            if (repeatPrompt != null)
             {
-                yield return null;
+                textDisplayer.DisplayText("repeat video prompt", repeatPrompt);
+                while (!InputManager.GetKeyDown(KeyCode.Y) && !InputManager.GetKeyDown(KeyCode.N))
+                {
+                    yield return null;
+                }
+                replay = InputManager.GetKey(KeyCode.N);
+                textDisplayer.ClearText();
             }
-            textDisplayer.ClearText();
             SetRamulatorState("WAITING", false, new Dictionary<string, object>());
-            replay = InputManager.GetKey(KeyCode.N);
-
         }
         while (replay);
     }

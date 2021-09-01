@@ -47,7 +47,6 @@ public class DataPoint
         foreach (string key in dataDict.Keys)
         {
             dynamic value = dataDict[key];
-
             string valueJSONString = ValueToString(value);
             JSONString = JSONString + "\"" + key + "\":" + valueJSONString + ",";
         }
