@@ -337,6 +337,17 @@ public class DeliveryExperiment : CoroutineExperiment
         playerMovement.Freeze();
     }
 
+    private void WorldScreen()
+    {
+        pauser.AllowPausing();
+        regularCamera.enabled = true;
+        blackScreenCamera.enabled = false;
+        if (!NICLS_COURIER)
+            starSystem.gameObject.SetActive(true);
+        memoryWordCanvas.SetActive(false);
+        playerMovement.Zero();
+    }
+
     private IEnumerator DoIntros()
     {
         if (Config.skipIntros)
@@ -397,17 +408,6 @@ public class DeliveryExperiment : CoroutineExperiment
         scriptedEventReporter.ReportScriptedEvent("stop fixation");
     }
 
-    private void WorldScreen()
-    {
-        pauser.AllowPausing();
-        regularCamera.enabled = true;
-        blackScreenCamera.enabled = false;
-        if (!NICLS_COURIER)
-            starSystem.gameObject.SetActive(true);
-        memoryWordCanvas.SetActive(false);
-        playerMovement.Zero();
-    }
-
     protected IEnumerator DisplayMessageAndWait(string description, string message)
     {
         SetRamulatorState("WAITING", true, new Dictionary<string, object>());
@@ -431,7 +431,6 @@ public class DeliveryExperiment : CoroutineExperiment
 
         SetRamulatorState("RETRIEVAL", false, new Dictionary<string, object>());
     }
-
 
     private IEnumerator DoFreeRecall(int trialNumber, int continuousTrialNum, bool practice = false)
     {
@@ -1052,9 +1051,10 @@ public class DeliveryExperiment : CoroutineExperiment
         yield return messageImageDisplayer.DisplayMessage(messageImageDisplayer.general_big_message_display);
 
         // Play the music videos
-        
         foreach (int clipNum in Enumerable.Range(0, NUM_MUSIC_VIDEOS_PER_SESSION))
         {
+            BlackScreen();
+            yield return null;
             yield return DoVideo(LanguageSource.GetLanguageString("play movie"),
                                  LanguageSource.GetLanguageString("music video ending instructions"),
                                  VideoSelector.VideoType.MusicVideos,

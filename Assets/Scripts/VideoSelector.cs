@@ -36,6 +36,8 @@ public class VideoSelector : MonoBehaviour
 
     public void SetVideo(VideoType videoType, int videoIndex = 0)
     {
+        videoPlayer.targetTexture.Release();
+        videoPlayer.targetTexture.Create();
         switch (videoType)
         {
             // JPB: TODO: Refactor this to make movies an array of language options
@@ -68,5 +70,6 @@ public class VideoSelector : MonoBehaviour
                 break;
             default: break;
         }
+        videoPlayer.Prepare();
     }
 }

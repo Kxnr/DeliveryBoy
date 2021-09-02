@@ -32,7 +32,7 @@ public class VideoControl : MonoBehaviour
 
     public void StartVideo()
     {
-        Debug.Log("VideoControl");
+        Debug.Log("VideoControl start video");
         gameObject.SetActive(true);
     }
 
