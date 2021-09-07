@@ -81,7 +81,7 @@ public class DeliveryExperiment : CoroutineExperiment
     public MessageImageDisplayer messageImageDisplayer;
     public RamulatorInterface ramulatorInterface;
     //public NiclsInterface niclsInterface;
-    public NiclsInterface3 niclsInterface;
+    public NiclsInterface niclsInterface;
     public PlayerMovement playerMovement;
     public GameObject pointer;
     public ParticleSystem pointerParticleSystem;
@@ -195,7 +195,7 @@ public class DeliveryExperiment : CoroutineExperiment
         {
             yield return niclsInterface.BeginNewSession(sessionNumber);
             SetupNiclsClassifier();
-            niclsInterface.SendReadOnlyStateToNicls(1);
+            niclsInterface.SendReadOnlyState(1);
         }   
         else
         {
@@ -495,7 +495,7 @@ public class DeliveryExperiment : CoroutineExperiment
                 {
                     yield return new WaitForSeconds(WORD_PRESENTATION_DELAY);
                     if (trialNumber < NUM_READ_ONLY_TRIALS)
-                        niclsInterface.SendEncodingToNicls(1);
+                        niclsInterface.SendEncoding(1);
                     else
                         yield return WaitForClassifier(niclsClassifierTypes[continuousTrialNum]);
                 }
@@ -640,11 +640,11 @@ public class DeliveryExperiment : CoroutineExperiment
             if (NICLS_COURIER && trialNumber == NUM_READ_ONLY_TRIALS)
             {
                 Debug.Log("READ_ONLY_OFF");
-                niclsInterface.SendReadOnlyStateToNicls(0);
-                niclsInterface.SendReadOnlyStateToNicls(0);
-                niclsInterface.SendReadOnlyStateToNicls(0);
-                niclsInterface.SendReadOnlyStateToNicls(0);
-                niclsInterface.SendReadOnlyStateToNicls(0);
+                niclsInterface.SendReadOnlyState(0);
+                niclsInterface.SendReadOnlyState(0);
+                niclsInterface.SendReadOnlyState(0);
+                niclsInterface.SendReadOnlyState(0);
+                niclsInterface.SendReadOnlyState(0);
             }
 
             // Next day message (and trial skip button)
