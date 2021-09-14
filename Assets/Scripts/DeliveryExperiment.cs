@@ -180,11 +180,14 @@ public class DeliveryExperiment : CoroutineExperiment
     {
         Debug.Log(UnityEPL.GetDataPath());
 
+        foreach (string name in UnityEPL.GetParticipants())
+            Debug.Log(name);
+
         // Write versions to logfile
         LogVersions(expName);
 
         // Setup Environment
-        EnableEnvironment();
+        yield return EnableEnvironment();
 
         // Setup Ramulator
         if (useRamulator)
@@ -1357,24 +1360,21 @@ public class DeliveryExperiment : CoroutineExperiment
         scriptedEventReporter.ReportScriptedEvent("versions", versionsData);
     }
 
-    private void EnableEnvironment()
+    private IEnumerator EnableEnvironment()
     {
-        // We want randomness for different people, but consistency between sessions
-        foreach (string name in UnityEPL.GetParticipants())
-            Debug.Log(name);
-        System.Random reliableRandom = new System.Random(UnityEPL.GetParticipants()[0].GetHashCode());
-        environment = environments[reliableRandom.Next(environments.Length)];
+        yield return new WaitUntil(() => deliveryItems.StoresSetup());
+
+        environment = environments[0]; // Remnant of old design
         environment.parent.SetActive(true);
 
         // Log the store mappings
         Dictionary<string, object> storeMappings = new Dictionary<string, object>();
         foreach (StoreComponent store in environment.stores)
         {
-            // JPB: TODO: NOW FIX THIS
-            //storeMappings.Add(store.gameObject.name, store.GetStoreName());
-            //storeMappings.Add(store.GetStoreName() + " position X", store.transform.position.x);
-            //storeMappings.Add(store.GetStoreName() + " position Y", store.transform.position.y);
-            //storeMappings.Add(store.GetStoreName() + " position Z", store.transform.position.z);
+            storeMappings.Add(store.gameObject.name, store.GetStoreName());
+            storeMappings.Add(store.GetStoreName() + " position X", store.transform.position.x);
+            storeMappings.Add(store.GetStoreName() + " position Y", store.transform.position.y);
+            storeMappings.Add(store.GetStoreName() + " position Z", store.transform.position.z);
         }
         scriptedEventReporter.ReportScriptedEvent("store mappings", storeMappings);
     }
