@@ -29,7 +29,7 @@ public class DeliveryExperiment : CoroutineExperiment
     // JPB: TODO: Make these configuration variables
     private const bool NICLS_COURIER = true;
 
-    private const string COURIER_VERSION = "v5.1.1";
+    private const string COURIER_VERSION = "v5.1.2";
     private const string RECALL_TEXT = "*******"; // JPB: TODO: Remove this and use display system
     // Constants moved to the Config File
     //private const int DELIVERIES_PER_TRIAL = LESS_DELIVERIES ? 3 : (NICLS_COURIER ? 16 : 13);
