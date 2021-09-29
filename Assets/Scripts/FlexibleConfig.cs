@@ -10,7 +10,7 @@ using UnityEngine;
 
 public class Config
 {
-    public static string experimentConfigName = null;
+    public static string experimentConfigName = "EXPERIMENT_CONFIG_NAME_NOT_SET";
 
     // System Settings
     public static string niclServerIP { get { return Config.GetSetting("niclServerIP"); } }
@@ -20,6 +20,7 @@ public class Config
     public static bool noSyncbox { get { return Config.GetSetting("noSyncbox"); } }
     public static bool lessTrials { get { return Config.GetSetting("lessTrials"); } }
     public static bool lessDeliveries { get { return Config.GetSetting("lessDeliveries"); } }
+    public static bool showFps { get { return Config.GetSetting("showFps"); } }
 
     // Game Section Skips
     public static bool skipIntros { get { return Config.GetSetting("skipIntros"); } }
@@ -55,6 +56,18 @@ public class Config
 
     private static dynamic systemConfig = null;
     private static dynamic experimentConfig = null;
+
+    public static T Get<T>(Func<T> getProp, T defaultValue)
+    {
+        try
+        {
+            return getProp.Invoke();
+        }
+        catch (MissingFieldException)
+        {
+            return defaultValue;
+        }
+    }
 
     private static dynamic GetSetting(string setting)
     {
