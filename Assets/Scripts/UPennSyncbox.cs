@@ -12,7 +12,6 @@ public class UPennSyncbox : EventLoop {
 	[DllImport ("ASimplePlugin")]
 	private static extern IntPtr CloseUSB();
 
-
 	[DllImport ("ASimplePlugin")]
 	private static extern float SyncPulse();
 
