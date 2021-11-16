@@ -74,6 +74,7 @@ crashlytics-build.properties
 # Textures which are too big for github
 Assets/Town Constructor 3/Textures
 Assets/Town Constructor 3
+Assets/Video/Music Videos
 
 # Other
 .DS_Store
