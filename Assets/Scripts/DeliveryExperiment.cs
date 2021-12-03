@@ -204,6 +204,8 @@ public class DeliveryExperiment : CoroutineExperiment
         scriptedEventReporter.ReportScriptedEvent("unhandled program exception", exceptionData);
     }
 
+
+
     void Update()
     {
         Cursor.visible = false;
@@ -333,6 +335,8 @@ public class DeliveryExperiment : CoroutineExperiment
         StartCoroutine(ExperimentCoroutine());
     }
 
+
+
     private IEnumerator ExperimentCoroutine()
     {
         Debug.Log(UnityEPL.GetDataPath());
@@ -343,8 +347,12 @@ public class DeliveryExperiment : CoroutineExperiment
         // Write versions to logfile
         LogVersions(expName);
 
+        // Set Config for Courier Online
         if (COURIER_ONLINE)
-            yield return GetOnlineConfig();
+            yield return Config.GetOnlineConfig();
+
+        // Save Config
+        Config.SaveConfigs(scriptedEventReporter, UnityEPL.GetDataPath());
 
         // Setup Environment
         yield return EnableEnvironment();

@@ -155,54 +155,6 @@ public abstract class CoroutineExperiment : MonoBehaviour
         SetRamulatorState("WAITING", false, new Dictionary<string, object>());
     }
 
-    class ReadOnlineFile
-    {
-        ReadOnlineFile(string filePath)
-        {
-
-        }
-    }
-
-
-    // TODO: LC: This should later be refactored into FlexibleConfig.cs
-    protected IEnumerator GetOnlineConfig()
-    {
-        Debug.Log("setting web request");
-        // string systemConfigPath = System.IO.Path.Combine(Application.streamingAssetsPath, "config.json");
-        string systemConfigPath = "http://psiturk.sas.upenn.edu:22371/static/js/Unity/build/StreamingAssets/config.json";
-        UnityWebRequest systemWWW = UnityWebRequest.Get(systemConfigPath);
-        yield return systemWWW.SendWebRequest();
-
-        // TODO: LC: if (systemWWW.result != UnityWebRequest.Result.Success) for later Unity versions
-        if (systemWWW.isNetworkError || systemWWW.isHttpError)
-        {
-            Debug.Log("Network error " + systemWWW.error);
-        }
-        else
-        {
-            Config.onlineSystemConfigText = systemWWW.downloadHandler.text;
-            Debug.Log("Online System Config fetched!!");
-            Debug.Log(Config.onlineSystemConfigText);
-        }
-
-        // string experimentConfigPath = System.IO.Path.Combine(Application.streamingAssetsPath, "CourierOnline.json");
-        string experimentConfigPath = "http://psiturk.sas.upenn.edu:22371/static/js/Unity/build/StreamingAssets/CourierOnline.json";
-        UnityWebRequest experimentWWW = UnityWebRequest.Get(experimentConfigPath);
-        yield return experimentWWW.SendWebRequest();
-
-        // TODO: LC: if (experimentWWW.result != UnityWebRequest.Result.Success) for later Unity versions
-        if (experimentWWW.isNetworkError || experimentWWW.isHttpError)
-        {
-            Debug.Log("Network error " + experimentWWW.error);
-        }
-        else
-        {
-            Config.onlineExperimentConfigText = experimentWWW.downloadHandler.text;
-            Debug.Log("Online Experiment Config fetched!!");
-            Debug.Log(Config.onlineExperimentConfigText);
-        }
-    }
-
     protected void Quit()
     {
         #if UNITY_EDITOR
