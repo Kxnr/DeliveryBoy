@@ -13,8 +13,8 @@
         <Negative>A</Negative>
         <DeadZoneType>CutOff</DeadZoneType>
         <DeadZone>0</DeadZone>
-        <Gravity>3</Gravity>
-        <Sensitivity>3</Sensitivity>
+        <Gravity>100</Gravity>
+        <Sensitivity>100</Sensitivity>
         <Scale>1</Scale>
         <Snap>true</Snap>
         <Invert>false</Invert>
@@ -30,8 +30,8 @@
         <Negative>LeftArrow</Negative>
         <DeadZoneType>CutOff</DeadZoneType>
         <DeadZone>0</DeadZone>
-        <Gravity>3</Gravity>
-        <Sensitivity>3</Sensitivity>
+        <Gravity>100</Gravity>
+        <Sensitivity>100</Sensitivity>
         <Scale>1</Scale>
         <Snap>true</Snap>
         <Invert>false</Invert>
@@ -84,8 +84,8 @@
         <Negative>S</Negative>
         <DeadZoneType>CutOff</DeadZoneType>
         <DeadZone>0</DeadZone>
-        <Gravity>3</Gravity>
-        <Sensitivity>3</Sensitivity>
+        <Gravity>100</Gravity>
+        <Sensitivity>100</Sensitivity>
         <Scale>1</Scale>
         <Snap>true</Snap>
         <Invert>false</Invert>
@@ -101,8 +101,8 @@
         <Negative>DownArrow</Negative>
         <DeadZoneType>CutOff</DeadZoneType>
         <DeadZone>0</DeadZone>
-        <Gravity>3</Gravity>
-        <Sensitivity>3</Sensitivity>
+        <Gravity>100</Gravity>
+        <Sensitivity>100</Sensitivity>
         <Scale>1</Scale>
         <Snap>true</Snap>
         <Invert>false</Invert>
@@ -118,8 +118,8 @@
         <Negative>JoystickButton4</Negative>
         <DeadZoneType>CutOff</DeadZoneType>
         <DeadZone>0.02</DeadZone>
-        <Gravity>3</Gravity>
-        <Sensitivity>1</Sensitivity>
+        <Gravity>100</Gravity>
+        <Sensitivity>100</Sensitivity>
         <Scale>1</Scale>
         <Snap>true</Snap>
         <Invert>false</Invert>
@@ -541,7 +541,7 @@
     <Action name="Secret">
       <Description />
       <Binding>
-        <Positive>Q</Positive>
+        <Positive>Z</Positive>
         <Negative>None</Negative>
         <DeadZoneType>CutOff</DeadZoneType>
         <DeadZone>0</DeadZone>
@@ -653,6 +653,26 @@
       </Binding>
       <Binding>
         <Positive>JoystickButton2</Positive>
+        <Negative>None</Negative>
+        <DeadZoneType>CutOff</DeadZoneType>
+        <DeadZone>0</DeadZone>
+        <Gravity>1</Gravity>
+        <Sensitivity>1</Sensitivity>
+        <Scale>1</Scale>
+        <Snap>false</Snap>
+        <Invert>false</Invert>
+        <Type>Button</Type>
+        <Axis>0</Axis>
+        <Joystick>0</Joystick>
+        <GamepadButton>LeftStick</GamepadButton>
+        <GamepadAxis>LeftThumbstickX</GamepadAxis>
+        <GamepadIndex>GamepadOne</GamepadIndex>
+      </Binding>
+    </Action>
+    <Action name="ExperimenterSecret">
+      <Description />
+      <Binding>
+        <Positive>Q</Positive>
         <Negative>None</Negative>
         <DeadZoneType>CutOff</DeadZoneType>
         <DeadZone>0</DeadZone>

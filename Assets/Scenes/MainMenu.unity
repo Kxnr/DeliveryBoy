@@ -3809,8 +3809,8 @@ MonoBehaviour:
         m_negative: 115
         m_deadZoneType: 0
         m_deadZone: 0
-        m_gravity: 3
-        m_sensitivity: 3
+        m_gravity: 100
+        m_sensitivity: 100
         m_scale: 1
         m_snap: 1
         m_invert: 0
@@ -3824,8 +3824,8 @@ MonoBehaviour:
         m_negative: 274
         m_deadZoneType: 0
         m_deadZone: 0
-        m_gravity: 3
-        m_sensitivity: 3
+        m_gravity: 100
+        m_sensitivity: 100
         m_scale: 1
         m_snap: 1
         m_invert: 0
@@ -3839,8 +3839,8 @@ MonoBehaviour:
         m_negative: 334
         m_deadZoneType: 0
         m_deadZone: 0.02
-        m_gravity: 3
-        m_sensitivity: 1
+        m_gravity: 100
+        m_sensitivity: 100
         m_scale: 1
         m_snap: 1
         m_invert: 0
@@ -4214,6 +4214,24 @@ MonoBehaviour:
         m_gamepadAxis: 0
         m_gamepadIndex: 0
     - m_name: Secret
+      m_description: 
+      m_bindings:
+      - m_positive: 122
+        m_negative: 0
+        m_deadZoneType: 0
+        m_deadZone: 0
+        m_gravity: 1
+        m_sensitivity: 1
+        m_scale: 1
+        m_snap: 0
+        m_invert: 0
+        m_type: 0
+        m_axis: 0
+        m_joystick: 0
+        m_gamepadButton: 0
+        m_gamepadAxis: 0
+        m_gamepadIndex: 0
+    - m_name: ExperimenterSecret
       m_description: 
       m_bindings:
       - m_positive: 113

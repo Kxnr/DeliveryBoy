@@ -466,9 +466,11 @@ public class DeliveryExperiment : CoroutineExperiment
         textDisplayer.DisplayText("end text", endMessage);
 
         #if !UNITY_WEBGL // WebGL DLL
-            // TODO: JPB: (Hokua) Wait for button press to quit
-            while (true)
+            while (!InputManager.GetButtonDown("ExperimenterSecret"))
                 yield return null;
+
+            Quit();
+
         #else
             #if !UNITY_EDITOR // LC: remove after upgrade
                 WebGLInput.captureAllKeyboardInput = false;
@@ -908,6 +910,15 @@ public class DeliveryExperiment : CoroutineExperiment
                 {
                     SetRamulatorState("WAITING", false, new Dictionary<string, object>());
                     continue;
+                }
+
+                // Skip all remaining trials
+                // TODO: KLT: Test to make sure this skips remaining trials correctly
+                //            Concern -- make sure it can still be pressed after waiting a while
+                if (InputManager.GetButton("ExperimenterSecret"))
+                {
+                    SetRamulatorState("WAITING", false, new Dictionary<string, object>());
+                    break;
                 }
             }
             else

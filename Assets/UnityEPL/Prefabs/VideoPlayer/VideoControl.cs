@@ -22,7 +22,7 @@ public class VideoControl : MonoBehaviour
 
         #if !UNITY_WEBGL // WebGL No Secret Key
             // Stop
-            if (InputManager.GetButtonDown("Secret"))
+            if (InputManager.GetButtonDown("Secret") || InputManager.GetButtonDown("ExperimenterSecret"))
             {
                 videoPlayer.Stop();
                 gameObject.SetActive(false);
