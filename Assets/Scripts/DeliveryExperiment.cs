@@ -42,9 +42,8 @@ public class DeliveryExperiment : CoroutineExperiment
     private static int continuousSessionNumber = -1;
     private static string expName;
 
-    // TODO: JPB: Make these configuration variables
-
     // Experiment type
+    // TODO: JBP: Make this an enum type
     private const bool HOSPITAL_COURIER = true;
     private const bool NICLS_COURIER = false;
     private const bool GRANT_VERSION = false;
@@ -460,22 +459,20 @@ public class DeliveryExperiment : CoroutineExperiment
         }
 
         // Ending Message
-        string endMessage = NICLS_COURIER
-            ? LanguageSource.GetLanguageString("end message")
-            : LanguageSource.GetLanguageString("end message scored") + starSystem.CumulativeRating().ToString("+#.##;-#.##");
-        textDisplayer.DisplayText("end text", endMessage);
+        if (NICLS_COURIER)
+            messageImageDisplayer.SetGeneralBigMessageText(mainText: "end message", continueText: "");
+        else
+            messageImageDisplayer.SetGeneralBigMessageText(mainText: "end message scored", continueText: "", mtFormatVals: new string[] { starSystem.CumulativeRating().ToString("+#.##;-#.##") });
 
         #if !UNITY_WEBGL // WebGL DLL
-            while (!InputManager.GetButtonDown("ExperimenterSecret"))
-                yield return null;
-
+            yield return messageImageDisplayer.DisplayMessage(messageImageDisplayer.general_big_message_display, "ExperimenterSecret");
             Quit();
-
         #else
             #if !UNITY_EDITOR // LC: remove after upgrade
                 WebGLInput.captureAllKeyboardInput = false;
             #endif // !UNITY_EDITOR
-            yield return new WaitForSeconds(5.0f);
+            yield return messageImageDisplayer.DisplayMessageTimed(messageImageDisplayer.general_big_message_display, 5.0f);
+            // TODO: KLT: Add UNITY_WEBGL EndTask() functionality to Quit() in CoroutineExperiment.cs
             EndTask();
         # endif // !UNITY_WEBGL
     }

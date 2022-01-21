@@ -34,7 +34,6 @@ public static class LanguageSource
         { "all objects recall", new string[] {"Please recall all the objects that you delivered.", "Bitte erinnern Sie alle Gegenstände, die Sie zugestellt haben."} },
         { "all stores recall", new string[] {"Please recall all the stores that you delivered objects to.", "Bitte erinnern Sie alle Geschäfte, zu denen Sie Pakete geliefert haben."} },
         { "end message", new string[] {"Thank you for being a great delivery person!", "Vielen Dank für Ihre Teilnahme!"} },
-        { "end message scored", new string[] {"Thank you for being a great delivery person! Your cumulative score is: ", "Vielen Dank für Ihre Teilnahme! Ihre abschließende Wertung ist: "} },
 
         { "standard intro video", new string[] { "Press (Y) to continue, \n Press (N) to replay instructional video.",
                                                  "Drücken Sie (Y) um fortzufahren, \n Drücken Sie (N) um das Video noch einmal zu sehen." } },
@@ -206,6 +205,8 @@ public static class LanguageSource
         {"", new string[] {"", ""}},
 
         {"deliv day pointing accuracy main", new string[] { "Good job! You correctly pointed to {0} out of {1} items in this delivery day.", GERMAN_TRANSLATION_NEEDED } },
+        { "end message scored", new string[] {"Thank you for being a great delivery person!\nYour cumulative score is: {0}", "Vielen Dank für Ihre Teilnahme! Ihre abschließende Wertung ist: {0}"} },
+
     };
 
     public static string GetLanguageString(string string_name)
