@@ -54,7 +54,7 @@ public class DeliveryExperiment : CoroutineExperiment
         private const bool COURIER_ONLINE = true;
     #endif // !UNITY_WEBGL
     
-    private const string COURIER_VERSION = COURIER_ONLINE ? "v5.0.0online" : "v5.2.0";
+    private const string COURIER_VERSION = COURIER_ONLINE ? "v5.0.0online" : "v5.2.1";
 
     private const string RECALL_TEXT = "*******"; // TODO: JPB: Remove this and use display system
     // Constants moved to the Config File
@@ -96,7 +96,7 @@ public class DeliveryExperiment : CoroutineExperiment
     private const float EFR_KEYPRESS_PRACTICE_JITTER = 0.25f;
 
     // Keep as hardcoded values
-    private const bool STAR_SYSTEM_ACTIVE = true;
+    private const bool STAR_SYSTEM_ACTIVE = false;
 
     private const int NICLS_READ_ONLY_SESSIONS = 8;
     private const int NICLS_CLOSED_LOOP_SESSIONS = 4;
@@ -347,7 +347,7 @@ public class DeliveryExperiment : CoroutineExperiment
         // Write versions to logfile
         LogVersions(expName);
 
-        // Set Config for Courier Online
+        // Set Config for CourierOnline
         if (COURIER_ONLINE)
             yield return Config.GetOnlineConfig();
 
@@ -624,7 +624,9 @@ public class DeliveryExperiment : CoroutineExperiment
 
             playerMovement.Freeze();
             messageImageDisplayer.SetReminderText(nextStore.GetStoreName());
-            yield return new WaitForSeconds(0.5f);
+            pointerParticleSystem.Play();
+            yield return new WaitForSeconds(1.5f);
+            pointerParticleSystem.Stop();
             playerMovement.Unfreeze();
 
             float startTime = Time.time;
@@ -1472,11 +1474,12 @@ public class DeliveryExperiment : CoroutineExperiment
         bool improvement = starSystem.ReportScore(1 - wrongness);
 
         if (STAR_SYSTEM_ACTIVE)
+        {
             starSystem.gameObject.SetActive(true);
             yield return starSystem.ShowDifference();
-
-        if (improvement)
-            pointerText.text = pointerText.text + "\n" + LanguageSource.GetLanguageString("rating improved");
+            if (improvement)
+                pointerText.text = pointerText.text + "\n" + LanguageSource.GetLanguageString("rating improved");
+        }
 
         pointerText.text = pointerText.text + "\n" + LanguageSource.GetLanguageString("continue");
 
