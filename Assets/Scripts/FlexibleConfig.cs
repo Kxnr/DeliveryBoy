@@ -52,6 +52,8 @@ public class Config
             if (lessDeliveries) return 3;
             else return Config.GetSetting("deliveriesPerPracticeTrial"); } }
     public static int newEfrKeypressPractices { get { return Config.GetSetting("newEfrKeypressPractices"); } }
+    public static int niclsReadOnlySessions { get { return Config.GetSetting("niclsReadOnlySessions"); } }
+    public static int niclsClosedLoopSessions { get { return Config.GetSetting("niclsClosedLoopSessions"); } }
 
     private const string SYSTEM_CONFIG_NAME = "config.json";
 

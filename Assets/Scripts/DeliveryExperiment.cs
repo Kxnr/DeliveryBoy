@@ -22,6 +22,8 @@ public class DeliveryExperiment : CoroutineExperiment
 
     private static int sessionNumber = -1;
     private static int continuousSessionNumber = -1;
+    private int niclsReadOnlySessions = -1;
+    private int niclsClosedLoopSessions = -1;
     private static bool useRamulator;
     private static bool useNiclServer;
     private static string expName;
@@ -29,7 +31,7 @@ public class DeliveryExperiment : CoroutineExperiment
     // JPB: TODO: Make these configuration variables
     private const bool NICLS_COURIER = true;
 
-    private const string COURIER_VERSION = "v5.1.3";
+    private const string COURIER_VERSION = "v5.1.4";
     private const string RECALL_TEXT = "*******"; // JPB: TODO: Remove this and use display system
     // Constants moved to the Config File
     //private const int DELIVERIES_PER_TRIAL = LESS_DELIVERIES ? 3 : (NICLS_COURIER ? 16 : 13);
@@ -68,6 +70,7 @@ public class DeliveryExperiment : CoroutineExperiment
     // Keep as hardcoded values
     private const int NICLS_READ_ONLY_SESSIONS = 8;
     private const int NICLS_CLOSED_LOOP_SESSIONS = 4;
+
 
     private const int NUM_MUSIC_VIDEOS = 6;
     private const int NUM_MUSIC_VIDEOS_PER_SESSION = 2;
@@ -124,12 +127,8 @@ public class DeliveryExperiment : CoroutineExperiment
         useRamulator = newUseRamulator;
         useNiclServer = newUseNiclServer;
         sessionNumber = newSessionNumber;
-        continuousSessionNumber = useNiclServer
-            ? NICLS_READ_ONLY_SESSIONS + sessionNumber
-            : sessionNumber;
         expName = newExpName;
         Config.experimentConfigName = expName;
-
     }
 
     void UncaughtExceptionHandler(object sender, UnhandledExceptionEventArgs args)
@@ -174,6 +173,14 @@ public class DeliveryExperiment : CoroutineExperiment
             syncs = GameObject.Find("SyncBox").GetComponent<Syncbox>();
             syncs.StartPulse();
         }
+
+        // Setup number of nicls sessions
+        niclsReadOnlySessions = Config.Get(() => Config.niclsReadOnlySessions, NICLS_READ_ONLY_SESSIONS);
+        niclsClosedLoopSessions = Config.Get(() => Config.niclsClosedLoopSessions, NICLS_CLOSED_LOOP_SESSIONS);
+        continuousSessionNumber = useNiclServer ? niclsReadOnlySessions + sessionNumber : sessionNumber;
+        Debug.Log(niclsReadOnlySessions);
+        Debug.Log(niclsClosedLoopSessions);
+        Debug.Log(continuousSessionNumber);
 
         // Randomize efr correct/incorrect button sides
         if (Config.efrEnabled && Config.counterBalanceCorrectIncorrectButton)
@@ -243,9 +250,8 @@ public class DeliveryExperiment : CoroutineExperiment
                 yield return messageImageDisplayer.DisplayMessage(messageImageDisplayer.general_message_display);
                 WorldScreen();
                 yield return DoTownLearning(1, environment.stores.Length);
-            } 
+            }
         }
-
 
         // Task Recap Instructions and Practice Trials
         // Using useNiclsServer to skip practices on closed loop sessions
@@ -281,12 +287,12 @@ public class DeliveryExperiment : CoroutineExperiment
             if (MUSIC_VIDEO_RECALL_SESSIONS.Contains(continuousSessionNumber))
                 yield return DoMusicVideoRecall(videoOrder);
 
-            if (continuousSessionNumber == NICLS_READ_ONLY_SESSIONS + NICLS_CLOSED_LOOP_SESSIONS - 1)
+            if (continuousSessionNumber == (niclsReadOnlySessions + niclsClosedLoopSessions - 1))
             {
                 var ratings = new string[] { "music video question 0 rating 0", "music video question 0 rating 1" };
                 messageImageDisplayer.SetSlidingScale2Text(titleText: "music video question 0 title",
                                                            ratings: ratings);
-                StartCoroutine(messageImageDisplayer.DisplaySlidingScale2Message(messageImageDisplayer.sliding_scale_2_display));
+                yield return messageImageDisplayer.DisplaySlidingScale2Message(messageImageDisplayer.sliding_scale_2_display);
             }
         }
 

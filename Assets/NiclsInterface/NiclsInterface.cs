@@ -89,7 +89,7 @@ public class NiclsListener {
         messageBuffer += System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
         List<string> received = new List<string>();
 
-        UnityEngine.Debug.Log("ParseBuffer\n" + messageBuffer.ToString());
+        //UnityEngine.Debug.Log("ParseBuffer\n" + messageBuffer.ToString());
         while (messageBuffer.IndexOf("\n") != -1) {
             string message = messageBuffer.Substring(0, messageBuffer.IndexOf("\n") + 1);
             received.Add(message);
