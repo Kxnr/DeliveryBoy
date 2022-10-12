@@ -184,7 +184,7 @@ public class Config
             Debug.Log(onlineSystemConfigText);
         }
 
-        string experimentConfigPath = System.IO.Path.Combine(Application.streamingAssetsPath, "CourierOnline.json");
+        string experimentConfigPath = System.IO.Path.Combine(Application.streamingAssetsPath, "ValueCourier.json");
         // string experimentConfigPath = "http://psiturk.sas.upenn.edu:22371/static/js/Unity/build/StreamingAssets/CourierOnline.json";
         UnityWebRequest experimentWWW = UnityWebRequest.Get(experimentConfigPath);
         yield return experimentWWW.SendWebRequest();
