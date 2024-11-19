@@ -100,7 +100,7 @@ public class MessageImageDisplayer : MonoBehaviour
             while (true)
                 yield return null;
         else
-            while (!InputManager.GetButtonDown(buttonName) && !InputManager.GetButtonDown("Secret"))
+            while (!InputManager.GetButtonDown(buttonName) /*!InputManager.GetButtonDown("Secret")*/)
                 yield return null;
         scriptedEventReporter.ReportScriptedEvent("instruction message cleared", messageData);
         message.SetActive(false);

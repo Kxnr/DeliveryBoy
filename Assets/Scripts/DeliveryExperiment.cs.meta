@@ -1,11 +1,48 @@
 fileFormatVersion: 2
 guid: 27f1eafd105a7444bbfd6db2535fc92b
-timeCreated: 1512156607
-licenseType: Free
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - soundRecorder: {instanceID: 0}
+  - textDisplayer: {instanceID: 0}
+  - videoPlayer: {instanceID: 0}
+  - videoSelector: {instanceID: 0}
+  - titleMessage: {instanceID: 0}
+  - titleText: {instanceID: 0}
+  - audioPlayback: {instanceID: 0}
+  - highBeep: {instanceID: 0}
+  - lowBeep: {instanceID: 0}
+  - lowerBeep: {instanceID: 0}
+  - scriptedEventReporter: {instanceID: 0}
+  - regularCamera: {instanceID: 0}
+  - blackScreenCamera: {instanceID: 0}
+  - familiarizer: {instanceID: 0}
+  - messageImageDisplayer: {instanceID: 0}
+  - ramulatorInterface: {instanceID: 0}
+  - niclsInterface: {instanceID: 0}
+  - elememInterface: {instanceID: 0}
+  - freiburgSyncboxInterface: {instanceID: 0}
+  - player: {instanceID: 0}
+  - playerMovement: {instanceID: 0}
+  - pointer: {instanceID: 0}
+  - pointerParticleSystem: {instanceID: 0}
+  - pointerMessage: {instanceID: 0}
+  - pointerText: {instanceID: 0}
+  - navigationMessage: {instanceID: 0}
+  - navigationText: {instanceID: 0}
+  - starSystem: {instanceID: 0}
+  - deliveryItems: {instanceID: 0}
+  - pauser: {instanceID: 0}
+  - memoryWordCanvas: {instanceID: 0}
+  - freeInputField: {instanceID: 0}
+  - freeResponse: {instanceID: 0}
+  - placeHolder: {instanceID: 0}
+  - cuedInputField: {instanceID: 0}
+  - cuedResponse: {instanceID: 0}
+  - freeRecallWrongType: {instanceID: 0}
+  - valueGuessWrongType: {instanceID: 0}
+  - modelList: {fileID: 11400000, guid: d270a3a9c21de41828fd1c8c6f9d81c2, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

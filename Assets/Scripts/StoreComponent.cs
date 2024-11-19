@@ -11,6 +11,12 @@ public class StoreComponent : MonoBehaviour
     public DeliveryItems deliveryItems;
     public GameObject familiarization_object;
     public double points;
+    
+    //add variable to keep track of corresponding green circle
+
+    [SerializeField]
+
+    private GameObject greenCircle;
 
     public string GetStoreName()
     {
@@ -96,5 +102,10 @@ public class StoreComponent : MonoBehaviour
     public override string ToString()
     {
         return storeName;
+    }
+
+    //added to return store's specific coordinates
+    public Vector3 getCirclePosition() {
+        return greenCircle.transform.position;
     }
 }

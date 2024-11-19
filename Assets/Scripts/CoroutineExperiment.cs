@@ -81,6 +81,7 @@ public abstract class CoroutineExperiment : MonoBehaviour
             yield return new WaitForSeconds(audioPlayback.clip.length);
             textDisplayer.ClearText();
             textDisplayer.OriginalColor();
+            audioPlayback.clip = null;
 
             SetRamulatorState("WAITING", true, new Dictionary<string, object>());
             SetElememState(ElememStateMsg.WAITING);

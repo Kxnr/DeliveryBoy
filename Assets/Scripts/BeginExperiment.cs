@@ -13,6 +13,7 @@ public class BeginExperiment : MonoBehaviour
     public UnityEngine.UI.InputField participantCodeInput;
     public UnityEngine.UI.Toggle useRamulatorToggle;
     public UnityEngine.UI.Toggle useNiclsToggle;
+    public UnityEngine.UI.Toggle useSameTownLayout;
     public UnityEngine.UI.Text beginButtonText;
     public UnityEngine.UI.InputField sessionInput;
 
@@ -28,7 +29,8 @@ public class BeginExperiment : MonoBehaviour
 
     public const string EXP_NAME_COURIER = "Courier";
     public const string EXP_NAME_EFR = "EFRCourier";
-    public const string EXP_NAME_NICLS = "NiclsCourier";
+    // Changed from NiclsCourier to CourierReinstate1 to appease Rhino
+    public const string EXP_NAME_NICLS = "CourierReinstate1";
     public const string EXP_NAME_VALUE = "ValueCourier";
 
     private void OnEnable() 
@@ -149,7 +151,10 @@ public class BeginExperiment : MonoBehaviour
             else if (experiment_name == EXP_NAME_EFR && useElememToggle.isOn)
                 experiment_name += "OpenLoop";
             else
-                experiment_name += "ReadOnly";
+                //experiment_name += "ReadOnly";
+                //experiment_name += "_v2.0";
+                //experiment_name += "Reinstate1";
+                
 
             UnityEPL.SetExperimentName(experiment_name);
 
@@ -178,11 +183,15 @@ public class BeginExperiment : MonoBehaviour
                 {
                     // Debug.Log("Session number is 0");
                     string defaultRoot = "";
-                    if (Application.isEditor)
-                        defaultRoot = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
-                    else
-                        defaultRoot = System.IO.Path.GetFullPath(".");
+                    //if (Application.isEditor)
+                    //    defaultRoot = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+                    //else
+                    //    defaultRoot = System.IO.Path.GetFullPath(".");
+                    //defaultRoot = System.IO.Path.Combine(defaultRoot, "data");
+                    defaultRoot = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+                    defaultRoot = System.IO.Path.Combine(defaultRoot, "UnityTasks");
                     defaultRoot = System.IO.Path.Combine(defaultRoot, "data");
+
                     string[] folders = System.IO.Directory.GetDirectories(defaultRoot);
 
                     // LC: check if there is another session 0 folder
@@ -200,7 +209,7 @@ public class BeginExperiment : MonoBehaviour
 
                 // TODO: JPB: Use NextSessionNumber()
                 DeliveryExperiment.ConfigureExperiment(useRamulatorToggle.isOn, useNiclsToggle.isOn, useElememToggle.isOn,
-                                                    UnityEPL.GetSessionNumber(), experiment_name, isFirstSession);
+                                                    UnityEPL.GetSessionNumber(), experiment_name, isFirstSession, useSameTownLayout.isOn);
                 Debug.Log("Ram On: " + useRamulatorToggle.isOn);
                 Debug.Log("Nicls On: " + useNiclsToggle.isOn);
                 Debug.Log("Elemem On: " + useElememToggle.isOn);
