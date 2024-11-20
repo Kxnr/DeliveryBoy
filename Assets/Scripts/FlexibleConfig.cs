@@ -12,6 +12,7 @@ using UnityEngine.Networking;
 
 public class Config
 {   
+    // replaced EXPERIMENT_CONFIG_NAME_NOT_SET with CourierReinstate1
     public static string experimentConfigName = "EXPERIMENT_CONFIG_NAME_NOT_SET";
     public static string onlineSystemConfigText = null;
     public static string onlineExperimentConfigText = null;

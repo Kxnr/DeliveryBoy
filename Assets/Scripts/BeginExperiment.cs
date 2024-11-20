@@ -29,7 +29,7 @@ public class BeginExperiment : MonoBehaviour
 
     public const string EXP_NAME_COURIER = "Courier";
     public const string EXP_NAME_EFR = "EFRCourier";
-    // Changed from NiclsCourier to CourierReinstate1 to appease Rhino
+    //public const string EXP_NAME_NICLS = "NiclsCourier";
     public const string EXP_NAME_NICLS = "CourierReinstate1";
     public const string EXP_NAME_VALUE = "ValueCourier";
 
@@ -151,10 +151,7 @@ public class BeginExperiment : MonoBehaviour
             else if (experiment_name == EXP_NAME_EFR && useElememToggle.isOn)
                 experiment_name += "OpenLoop";
             else
-                //experiment_name += "ReadOnly";
-                //experiment_name += "_v2.0";
-                //experiment_name += "Reinstate1";
-                
+                experiment_name += "";
 
             UnityEPL.SetExperimentName(experiment_name);
 

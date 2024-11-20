@@ -225,6 +225,33 @@ public class DeliveryExperiment : CoroutineExperiment
     private List<GameObject> spawnedItemList = new List<GameObject>();
     public static Action OnObjectDelivered;
 
+    private Dictionary<string, string> wordMap = new Dictionary<string, string>()
+    {
+        { "basketballhoop", "basketball_hoop" },
+        { "chalkboard", "chalk_board" },
+        { "chilipeppers", "chili_peppers" },
+        { "coffeemachine", "coffee_machine" },
+        { "dishsoap", "dish_soap" },
+        { "dogfood", "dog_food" },
+        { "drumset", "drum_set" },
+        { "fireextinguisher", "fire_extinguisher" },
+        { "fishingrod", "fishing_rod" },
+        { "ironingboard", "ironing_board" },
+        { "musicstand", "music_stand" },
+        { "orangejuice", "orange_juice" },
+        { "papertowels", "paper_towels" },
+        { "peanutbutter", "peanut_butter" },
+        { "pingpongpaddles", "ping_pong_paddles" },
+        { "pooltable", "pool_table" },
+        { "recordplayer", "record_player" },
+        { "rubikscube", "rubiks_cube" },
+        { "shoppingcart", "shopping_cart" },
+        { "vendingmachine", "vending_machine" },
+        { "warningsign", "warning_sign" },
+        { "washingmachine", "washing_machine" },
+        { "waterjug", "water_jug" }
+    };
+
     // Stim Tags
     List<string> GenerateStimTags(int numTrials)
     {
@@ -574,7 +601,8 @@ public class DeliveryExperiment : CoroutineExperiment
         continuousSessionNumber = useNiclServer ? NICLS_READ_ONLY_SESSIONS + sessionNumber :
                                   sessionNumber;
         expName = newExpName;
-        Config.experimentConfigName = expName;
+        //Config.experimentConfigName = expName;
+        Config.experimentConfigName = "NICLSCourierReadOnly";
     }
 
     void UncaughtExceptionHandler(object sender, UnhandledExceptionEventArgs args)
@@ -1445,21 +1473,34 @@ public class DeliveryExperiment : CoroutineExperiment
                     spawnedItem = Instantiate(currentObject, pointAhead + Vector3.up * heightOffset, Quaternion.identity);
                     spawnedItem.transform.GetChild(0).transform.localPosition = new Vector3(0, heightOffset, 0);
                     canSpawnAgain = false;
-                    Debug.Log("test Obj spawned");
                 }
             }
 
-            // storing delivered items and stores
+            // storing delivered items and stores in lst file
 #if !UNITY_WEBGL // System.IO
             if (audioPlayback.clip != null)
             {
                 string lstFilepath = practice
                             ? System.IO.Path.Combine(UnityEPL.GetDataPath(), "practice-" + continuousTrialNum.ToString() + ".lst")
                             : System.IO.Path.Combine(UnityEPL.GetDataPath(), continuousTrialNum.ToString() + ".lst");
-                AppendWordToLst(lstFilepath, "(" + audioPlayback.clip.name + ", " + nextStore.GetStoreName() + ")");
+                AppendWordToLst(lstFilepath, ConvertToUnderscoreWord(audioPlayback.clip.name));
 #endif
-                allPresentedObjects.Add("(" + audioPlayback.clip.name + ", " + nextStore.GetStoreName() + ")");
+                allPresentedObjects.Add(ConvertToUnderscoreWord(audioPlayback.clip.name));
+
+                var objectDeliveredInfo = new Dictionary<string, object>() { {"trial number", continuousTrialNum},
+                                                                            {"item name", ConvertToUnderscoreWord(audioPlayback.clip.name)},
+                                                                            {"store name", nextStore.GetStoreName()},
+                                                                            {"serial position", i+1},
+                                                                            {"player position", playerMovement.transform.position.ToString()},
+                                                                            {"store position", nextStore.transform.position.ToString()},
+                                                                            {"distance trigger activated", distTriggerActivated.ToString()},
+                                                                            {"time trigger activated", timeTriggerActivated.ToString()},
+                                                                            {"stim tag", stimTag} };
+
+                scriptedEventReporter.ReportScriptedEvent("Object Delivered", objectDeliveredInfo);
             }
+
+            
 
 
             if (spawnedItem != null)
@@ -1468,7 +1509,6 @@ public class DeliveryExperiment : CoroutineExperiment
                 spawnedItem.GetComponent<ShowObjectOnProximity>().DisableObj();
                 spawnedItemList.Add(spawnedItem);
                 StartCoroutine(CompleteObjectDelivery());
-                //Destroy(spawnedItem);
             }
             yield return DisplayPointingIndicator(nextStore, false);
 
@@ -1534,7 +1574,7 @@ public class DeliveryExperiment : CoroutineExperiment
                 string deliveredItemNameWithSpace = VALUE_COURIER ? deliveredItemName.Replace('_', ' ') + ", " + roundedPoints.ToString() 
                                                                   : deliveredItemName.Replace('_', ' ');
                 var itemPresentationInfo = new Dictionary<string, object>() { {"trial number", continuousTrialNum},
-                                                                            {"item name", deliveredItemName},
+                                                                            {"item name", ConvertToUnderscoreWord(deliveredItemName)},
                                                                             {"store name", nextStore.GetStoreName()},
                                                                             {"serial position", i+1},
                                                                             {"player position", playerMovement.transform.position.ToString()},
@@ -1546,8 +1586,6 @@ public class DeliveryExperiment : CoroutineExperiment
                                                                             {"task condition", freeFirst ? "FreeFirst" : "ValueFirst"},
                                                                             {"stim condition", useElemem ? isStimStore : false},
                                                                             {"stim tag", stimTag} };
-
-                
 
                 audioPlayback.clip = deliveredItem;
                 //audioPlayback.Play();
@@ -2510,7 +2548,6 @@ public class DeliveryExperiment : CoroutineExperiment
                 soundRecorder.StartRecording(wavFilePath);
             #endif
 
-            //changed efrDisabled to false
             yield return DoFreeRecallDisplay("music video " + videoIndex + " recall", MUSIC_VIDEO_RECALL_TIME, efrDisabled: true);
 
             scriptedEventReporter.ReportScriptedEvent("music video recall recording stop", recordingData);
@@ -3298,8 +3335,15 @@ public class DeliveryExperiment : CoroutineExperiment
         // adding the previous item's name to the file
         itemName = itemName.Replace("(Clone)", "").Trim();
         string txtFilepath = System.IO.Path.Combine(UnityEPL.GetDataPath(), continuousTrialNumber.ToString() + ".txt");
-        AppendWordToLst(txtFilepath, audioPlayback.clip.name +  ": (" + itemName + ", " + GetFormattedTimestamp() + ")");
-        Debug.Log(audioPlayback.clip.name + ": (" + itemName + ", " + GetFormattedTimestamp() + ")");
+        AppendWordToLst(txtFilepath, ConvertToUnderscoreWord(audioPlayback.clip.name) +  ": (" + ConvertToUnderscoreWord(itemName) + ", " + GetFormattedTimestamp() + ")");
+        //Debug.Log(audioPlayback.clip.name + ": (" + itemName + ", " + GetFormattedTimestamp() + ")");
+
+        var previousItemInfo = new Dictionary<string, object>() {   {"trial number", continuousTrialNumber},
+                                                                    {"item to deliver", ConvertToUnderscoreWord(audioPlayback.clip.name)},
+                                                                    {"previously delivered item seen", ConvertToUnderscoreWord(itemName)},
+                                                                    {"Timestamp", GetFormattedTimestamp() } };
+
+        scriptedEventReporter.ReportScriptedEvent("Object Reinstatement", previousItemInfo);
     }
 
     private string GetFormattedTimestamp()
@@ -3336,6 +3380,16 @@ public class DeliveryExperiment : CoroutineExperiment
         double randomValue = rng.NextDouble();
         float randomDistance = Mathf.Lerp(minSpawnDistance, maxSpawnDistance, (float)randomValue);
         return randomDistance;
+    }
+
+    public string ConvertToUnderscoreWord(string input)
+    {
+        string lowerInput = input.ToLower().Replace(" ", "");
+        if (wordMap.ContainsKey(lowerInput))
+        {
+            return wordMap[lowerInput];
+        }
+        return input;
     }
 }
 
