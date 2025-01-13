@@ -21,7 +21,7 @@ public class ShowObjectOnProximity : MonoBehaviour
     private float movementThreshold = 2f;
 
     public static Action OnPlayObjectSound;
-    public static Action<string> OnPreviousItemLocation;
+    public static Action<string, float> OnPreviousItemLocation;
 
     void Awake()
     {
@@ -99,8 +99,13 @@ public class ShowObjectOnProximity : MonoBehaviour
                     float distance = Vector3.Distance(player.transform.position, transform.position);
                     if (distance <= distanceThreshold && IsObjectInFrontOfPlayer() && !hasBeenWrittenToFile)
                     {
+                        Vector3 targetDir = player.transform.position - transform.position;
+                        float angle = Vector3.Angle(targetDir, this.transform.forward);
+                        angle = Mathf.Round(angle * 100f) / 100f;
+                        Debug.Log("Angle: " + angle);
+
                         hasBeenWrittenToFile = true;
-                        OnPreviousItemLocation?.Invoke(this.gameObject.name);
+                        OnPreviousItemLocation?.Invoke(this.gameObject.name, angle);
                     }
                 }
             }
