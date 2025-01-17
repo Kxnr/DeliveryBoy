@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -602,6 +602,7 @@ public class DeliveryExperiment : CoroutineExperiment
                                   sessionNumber;
         expName = newExpName;
         //Config.experimentConfigName = expName;
+        // Forcing it to NICLSCourierReadOnly instead of expName
         Config.experimentConfigName = "NICLSCourierReadOnly";
     }
 
@@ -3330,7 +3331,7 @@ public class DeliveryExperiment : CoroutineExperiment
         audioPlayback.Play();
     }
 
-    private void AtPreviousItemLocation(string itemName)
+    private void AtPreviousItemLocation(string itemName, float angle)
     {
         // adding the previous item's name to the file
         itemName = itemName.Replace("(Clone)", "").Trim();
@@ -3341,6 +3342,7 @@ public class DeliveryExperiment : CoroutineExperiment
         var previousItemInfo = new Dictionary<string, object>() {   {"trial number", continuousTrialNumber},
                                                                     {"item to deliver", ConvertToUnderscoreWord(audioPlayback.clip.name)},
                                                                     {"previously delivered item seen", ConvertToUnderscoreWord(itemName)},
+                                                                    {"Angle of Approach", angle},
                                                                     {"Timestamp", GetFormattedTimestamp() } };
 
         scriptedEventReporter.ReportScriptedEvent("Object Reinstatement", previousItemInfo);
@@ -3423,5 +3425,3 @@ public static class Extensions
             dict.Add(key, new List<T>{newValue});
     }
 }
-
-
