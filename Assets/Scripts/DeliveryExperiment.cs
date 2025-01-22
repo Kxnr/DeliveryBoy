@@ -603,7 +603,7 @@ public class DeliveryExperiment : CoroutineExperiment
         expName = newExpName;
         //Config.experimentConfigName = expName;
         // Forcing it to NICLSCourierReadOnly instead of expName
-        Config.experimentConfigName = "NICLSCourierReadOnly";
+        Config.experimentConfigName = "NICLSCourier3D";
     }
 
     void UncaughtExceptionHandler(object sender, UnhandledExceptionEventArgs args)
