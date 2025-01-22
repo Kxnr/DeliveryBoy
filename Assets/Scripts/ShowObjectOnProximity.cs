@@ -100,7 +100,16 @@ public class ShowObjectOnProximity : MonoBehaviour
                     if (distance <= distanceThreshold && IsObjectInFrontOfPlayer() && !hasBeenWrittenToFile)
                     {
                         Vector3 targetDir = player.transform.position - transform.position;
-                        float angle = Vector3.Angle(targetDir, this.transform.forward);
+                        float angle = Vector3.Angle(targetDir, transform.forward);
+
+                        // Determine if the angle should be positive or negative based on the cross product
+                        Vector3 cross = Vector3.Cross(transform.forward, targetDir);
+                        if (cross.y < 0)
+                        {
+                            angle = 360 - angle;
+                        }
+
+                        // Round to two decimal places
                         angle = Mathf.Round(angle * 100f) / 100f;
                         Debug.Log("Angle: " + angle);
 
