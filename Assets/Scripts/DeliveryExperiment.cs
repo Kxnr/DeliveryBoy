@@ -8,7 +8,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-
+//specified Vector3 to avoid conflicts with Accord.Math.Vector3
+using Vector3 = UnityEngine.Vector3;
 using Accord.Math;
 // using Accord.Statistics.Distributions.Multivariate;
 using Accord.Statistics.Distributions.Univariate;
@@ -56,6 +57,7 @@ public class DeliveryExperiment : CoroutineExperiment
     // Experiment type
     private const bool EFR_COURIER = false;
     private const bool NICLS_COURIER = true;
+    private const bool NICLS_COURIER_3D = true;
     private const bool VALUE_COURIER = false;
     #if !UNITY_WEBGL
         private const bool COURIER_ONLINE = false;
@@ -132,8 +134,9 @@ public class DeliveryExperiment : CoroutineExperiment
     private static bool useNiclServer = false;
     private static bool useElemem = false;
     private static bool isFirstSession = false;
-    #if !UNITY_WEBGL // Syncbox, Ramulator, and NICLS
-        private Syncbox syncs;
+    public static bool isSameTownLayout = false;
+#if !UNITY_WEBGL // Syncbox, Ramulator, and NICLS
+    private Syncbox syncs;
         public RamulatorInterface ramulatorInterface;
         public NiclsInterface niclsInterface;
     #endif // !UNITY_WEBGL
@@ -207,6 +210,48 @@ public class DeliveryExperiment : CoroutineExperiment
     private const int ELEMEM_REP_STIM_INTERVAL = 6000; // ms, 2*STIM_DURATION
     private const int ELEMEM_REP_STIM_DELAY = 1500; // ms
     private const int ELEMEM_REP_SWITCH_DELAY = 3000; // ms
+
+    // Keep track of ModeLlist
+
+    [SerializeField]
+
+    ModelList modelList;
+
+    [SerializeField] private float minInterval = 20;
+    [SerializeField] private float maxInterval = 60;
+    [SerializeField] private int recalculationDistance = 5;
+    private GameObject currentObject;
+
+    private int continuousTrialNumber;
+    private List<GameObject> spawnedItemList = new List<GameObject>();
+    public static Action OnObjectDelivered;
+
+    private Dictionary<string, string> wordMap = new Dictionary<string, string>()
+    {
+        { "basketballhoop", "basketball_hoop" },
+        { "chalkboard", "chalk_board" },
+        { "chilipeppers", "chili_peppers" },
+        { "coffeemachine", "coffee_machine" },
+        { "dishsoap", "dish_soap" },
+        { "dogfood", "dog_food" },
+        { "drumset", "drum_set" },
+        { "fireextinguisher", "fire_extinguisher" },
+        { "fishingrod", "fishing_rod" },
+        { "ironingboard", "ironing_board" },
+        { "musicstand", "music_stand" },
+        { "orangejuice", "orange_juice" },
+        { "papertowels", "paper_towels" },
+        { "peanutbutter", "peanut_butter" },
+        { "pingpongpaddles", "ping_pong_paddles" },
+        { "pooltable", "pool_table" },
+        { "recordplayer", "record_player" },
+        { "rubikscube", "rubiks_cube" },
+        { "shoppingcart", "shopping_cart" },
+        { "vendingmachine", "vending_machine" },
+        { "warningsign", "warning_sign" },
+        { "washingmachine", "washing_machine" },
+        { "waterjug", "water_jug" }
+    };
 
     // Stim Tags
     List<string> GenerateStimTags(int numTrials)
@@ -543,7 +588,7 @@ public class DeliveryExperiment : CoroutineExperiment
         Sham
     }
     
-    public static void ConfigureExperiment(bool newUseRamulator, bool newUseNiclServer, bool newUseElemem, int newSessionNumber, string newExpName, bool newFirstSession)
+    public static void ConfigureExperiment(bool newUseRamulator, bool newUseNiclServer, bool newUseElemem, int newSessionNumber, string newExpName, bool newFirstSession, bool useSameTownLayout)
     {
         #if !UNITY_WEBGL // Ramulator and NICLS
             useRamulator = newUseRamulator;
@@ -551,12 +596,15 @@ public class DeliveryExperiment : CoroutineExperiment
             useElemem = newUseElemem;
             Config.elememStimMode = useElemem ? "open" : "none";
             isFirstSession = newFirstSession;
+            isSameTownLayout = useSameTownLayout;
         #endif // !UNITY_WEBGL
         sessionNumber = newSessionNumber;
         continuousSessionNumber = useNiclServer ? NICLS_READ_ONLY_SESSIONS + sessionNumber :
                                   sessionNumber;
         expName = newExpName;
-        Config.experimentConfigName = expName;
+        //Config.experimentConfigName = expName;
+        // Forcing it to NICLSCourierReadOnly instead of expName
+        Config.experimentConfigName = "NICLSCourier3D";
     }
 
     void UncaughtExceptionHandler(object sender, UnhandledExceptionEventArgs args)
@@ -681,7 +729,17 @@ public class DeliveryExperiment : CoroutineExperiment
         StartCoroutine(ExperimentCoroutine());
     }
 
+    private void OnEnable()
+    {
+        ShowObjectOnProximity.OnPlayObjectSound += PlayCurrentObjectSound;
+        ShowObjectOnProximity.OnPreviousItemLocation += AtPreviousItemLocation;
+    }
 
+    private void OnDisable()
+    {
+        ShowObjectOnProximity.OnPlayObjectSound -= PlayCurrentObjectSound;
+        ShowObjectOnProximity.OnPreviousItemLocation -= AtPreviousItemLocation;
+    }
 
     private IEnumerator ExperimentCoroutine()
     {
@@ -828,12 +886,14 @@ public class DeliveryExperiment : CoroutineExperiment
         {
             var videoOrder = GenMusicVideoOrder();
             yield return DoBreak();
-            yield return DoMusicVideos(videoOrder);
+            // We specifically don't want music vids for 3D iteration of Courier
+            if (!NICLS_COURIER_3D) {
+                yield return DoMusicVideos(videoOrder);
+            }
             yield return DoSubSession(1, trialsThisSession, Config.trialsPerSession);
             trialsThisSession += Config.trialsPerSession;
-            if (MUSIC_VIDEO_RECALL_SESSIONS.Contains(continuousSessionNumber))
+            if ((!NICLS_COURIER_3D) && MUSIC_VIDEO_RECALL_SESSIONS.Contains(continuousSessionNumber))
                 yield return DoMusicVideoRecall(videoOrder);
-
             if (continuousSessionNumber == NICLS_READ_ONLY_SESSIONS + NICLS_CLOSED_LOOP_SESSIONS - 1)
             {
                 var ratings = new string[] { "music video question 0 rating 0", "music video question 0 rating 1" };
@@ -1194,6 +1254,9 @@ public class DeliveryExperiment : CoroutineExperiment
     private IEnumerator DoDeliveries(int trialNumber, int continuousTrialNum, bool practice = false, bool skipLastDelivStores = false, 
                                      StorePointType storePointType = StorePointType.Random, bool freeFirst = true, string stimTag = null)
     {
+        continuousTrialNumber = continuousTrialNum;
+        bool canSpawnAgain = false;
+        ClearSpawnedItems();
         Dictionary<string, object> trialData = new Dictionary<string, object>();
         trialData.Add("trial number", continuousTrialNum);
         if (practice)
@@ -1353,16 +1416,51 @@ public class DeliveryExperiment : CoroutineExperiment
 
             float startTime = Time.time;
             float cumDist = 0f;
+            float distanceTravelled = 0f;
             float dist = CalculateDistance(nextStore.transform.Find("DeliveryZone"));
+            float randomDistance = GetRandomDistance(dist);
+            float pr = randomDistance / dist;
             bool distTriggerActivated = false;
             bool timeTriggerActivated = false;
+            GameObject spawnedItem = null;
+            bool hasSpawnedForLongerDist = false;
             while (!nextStore.PlayerInDeliveryPosition())
             {
                 yield return null;
 
                 float newDist = CalculateDistance(nextStore.transform.Find("DeliveryZone"));
-                if (newDist > dist) cumDist += newDist - dist;
+                if (newDist > dist)
+                {
+                    cumDist += newDist - dist;
+                }
+                else
+                {
+                    distanceTravelled += Mathf.Abs(newDist - dist);
+                }
+                
                 dist = newDist;
+
+                if ((int)distanceTravelled % recalculationDistance == 0)
+                {
+                    // if the object has not spawned for the recalculated longer distance && object exists in the world && it is not in player's sight && not seen by player
+                    if (!hasSpawnedForLongerDist && spawnedItem != null && !IsInLineOfSight(player.transform.position, spawnedItem.transform.position, spawnedItem.transform) && !spawnedItem.GetComponent<ShowObjectOnProximity>().isObjectSeen)
+                    {
+                        Destroy(spawnedItem);
+                        dist = CalculateDistance(nextStore.transform.Find("DeliveryZone"));
+                        randomDistance = GetRandomDistance(dist);
+                        pr = randomDistance / dist;
+                        canSpawnAgain = true;
+                        hasSpawnedForLongerDist = true;
+                        //if ((int)distanceTravelled == dist * pr && (distanceTravelled >= 1))
+                        //{
+
+                        //}
+                    }
+                }
+                else
+                {
+                    hasSpawnedForLongerDist = false;
+                }
 
                 if (Time.time > startTime + POINTING_INDICATOR_DELAY && Config.timeTrigger) timeTriggerActivated = true;
                 if (cumDist > DISTANCE_THRESHOLD && Config.distTrigger) distTriggerActivated = true;
@@ -1371,6 +1469,50 @@ public class DeliveryExperiment : CoroutineExperiment
                     yield return DisplayPointingIndicator(nextStore, true);
                 if (InputManager.GetButton("Secret"))
                     goto SkipRemainingDeliveries;
+
+                if (canSpawnAgain)
+                {
+                    Vector3 pointAhead = GetPointAheadOnPath(player.transform.position, randomDistance);
+                    float heightOffset = currentObject.GetComponent<ShowObjectOnProximity>().GetHeightOffset();
+                    spawnedItem = Instantiate(currentObject, pointAhead + Vector3.up * heightOffset, Quaternion.identity);
+                    spawnedItem.transform.GetChild(0).transform.localPosition = new Vector3(0, heightOffset, 0);
+                    canSpawnAgain = false;
+                }
+            }
+
+            // storing delivered items and stores in lst file
+#if !UNITY_WEBGL // System.IO
+            if (audioPlayback.clip != null)
+            {
+                string lstFilepath = practice
+                            ? System.IO.Path.Combine(UnityEPL.GetDataPath(), "practice-" + continuousTrialNum.ToString() + ".lst")
+                            : System.IO.Path.Combine(UnityEPL.GetDataPath(), continuousTrialNum.ToString() + ".lst");
+                AppendWordToLst(lstFilepath, ConvertToUnderscoreWord(audioPlayback.clip.name));
+#endif
+                allPresentedObjects.Add(ConvertToUnderscoreWord(audioPlayback.clip.name));
+
+                var objectDeliveredInfo = new Dictionary<string, object>() { {"trial number", continuousTrialNum},
+                                                                            {"item name", ConvertToUnderscoreWord(audioPlayback.clip.name)},
+                                                                            {"store name", nextStore.GetStoreName()},
+                                                                            {"serial position", i+1},
+                                                                            {"player position", playerMovement.transform.position.ToString()},
+                                                                            {"store position", nextStore.transform.position.ToString()},
+                                                                            {"distance trigger activated", distTriggerActivated.ToString()},
+                                                                            {"time trigger activated", timeTriggerActivated.ToString()},
+                                                                            {"stim tag", stimTag} };
+
+                scriptedEventReporter.ReportScriptedEvent("Object Delivered", objectDeliveredInfo);
+            }
+
+            
+
+
+            if (spawnedItem != null)
+            {
+                // marking object as previously delivered object but not removing it
+                spawnedItem.GetComponent<ShowObjectOnProximity>().DisableObj();
+                spawnedItemList.Add(spawnedItem);
+                StartCoroutine(CompleteObjectDelivery());
             }
             yield return DisplayPointingIndicator(nextStore, false);
 
@@ -1436,7 +1578,7 @@ public class DeliveryExperiment : CoroutineExperiment
                 string deliveredItemNameWithSpace = VALUE_COURIER ? deliveredItemName.Replace('_', ' ') + ", " + roundedPoints.ToString() 
                                                                   : deliveredItemName.Replace('_', ' ');
                 var itemPresentationInfo = new Dictionary<string, object>() { {"trial number", continuousTrialNum},
-                                                                            {"item name", deliveredItemName},
+                                                                            {"item name", ConvertToUnderscoreWord(deliveredItemName)},
                                                                             {"store name", nextStore.GetStoreName()},
                                                                             {"serial position", i+1},
                                                                             {"player position", playerMovement.transform.position.ToString()},
@@ -1449,25 +1591,47 @@ public class DeliveryExperiment : CoroutineExperiment
                                                                             {"stim condition", useElemem ? isStimStore : false},
                                                                             {"stim tag", stimTag} };
 
-                #if !UNITY_WEBGL // System.IO
-                    string lstFilepath = practice
-                                ? System.IO.Path.Combine(UnityEPL.GetDataPath(), "practice-" + continuousTrialNum.ToString() + ".lst")
-                                : System.IO.Path.Combine(UnityEPL.GetDataPath(), continuousTrialNum.ToString() + ".lst");
-                    AppendWordToLst(lstFilepath, deliveredItemName);
-                #endif
-                allPresentedObjects.Add(deliveredItemName);
-
                 audioPlayback.clip = deliveredItem;
-                audioPlayback.Play();
+                //audioPlayback.Play();
                 
 
                 scriptedEventReporter.ReportScriptedEvent("object presentation begins", itemPresentationInfo);
                 SetRamulatorState("WORD", true, new Dictionary<string, object>() { { "word", deliveredItemName } });
 
                 //add visuals with sound
-                messageImageDisplayer.deliver_item_visual_dislay.SetActive(true);
+                //messageImageDisplayer.deliver_item_visual_dislay.SetActive(true);
                 Debug.Log(deliveredItemNameWithSpace);
-                messageImageDisplayer.SetDeliverItemText(deliveredItemNameWithSpace);
+                //messageImageDisplayer.SetDeliverItemText(deliveredItemNameWithSpace);
+                //check name against deliveredItemName
+                
+                
+                foreach (var modelObject in modelList.models) {
+                    //get position of circle
+                    if (modelObject.name.ToLower() == deliveredItemName.ToLower()) {
+                        currentObject = modelObject;
+                        //set position of prefab to circle position
+                        //var circlePosition = lastStoreToVisit.getCirclePosition();
+
+                        //create prefab
+                        //Instantiate(modelObject, circlePosition, Quaternion.identity);
+
+                        //set prefab to active
+                        //modelObject.SetActive(true);
+
+                        break;
+                    }
+                }
+                
+
+                //this will help us always see the apple 
+                //set position of prefab to circle position
+                var circlePosition = nextStore.getCirclePosition();
+
+                //create prefab
+                //var spawned = Instantiate(modelList.models[0], circlePosition + Vector3.up * 2, Quaternion.identity);
+                //spawned.gameObject.AddComponent<Spin>();
+                canSpawnAgain = true;
+
                 yield return SkippableWait(AUDIO_TEXT_DISPLAY);
                 messageImageDisplayer.deliver_item_visual_dislay.SetActive(false);
 
@@ -2997,40 +3161,51 @@ public class DeliveryExperiment : CoroutineExperiment
 
     private StoreComponent PickNextStore(List<StoreComponent> stores)
     {
-        int NUM_CLOSE_STORES = 3;
-
-        if (stores == null || stores.Count == 0)
-            throw new ArgumentException("There are no stores in provided list");
-        // Debug.Log("Unvisited Stores: " + string.Join(", ", stores));
-
-        var tempStores = NonVisibleStores(stores);
-        if (tempStores.Count == 0)
-            goto PickStore;
-        else
-            stores = tempStores;
-        // Debug.Log("NonVisible Stores: " + string.Join(", ", stores));
-
-        tempStores = StoresNotBehindPlayer(stores);
-        if (tempStores.Count == 0)
-            goto PickStore;
-        else
-            stores = tempStores;
-        // Debug.Log("Not Behind Player Stores: " + string.Join(", ", stores));
-
-    PickStore:
-        stores.Sort((store1, store2) =>
+        if(DeliveryExperiment.isSameTownLayout)
         {
-            float dist1 = UnityEngine.Vector3.Distance(playerMovement.gameObject.transform.position, store1.transform.position);
-            float dist2 = UnityEngine.Vector3.Distance(playerMovement.gameObject.transform.position, store2.transform.position);
-            if (dist1 == dist2) return 0;
-            else if (dist1 < dist2) return -1;
-            else return 1;
-        });
+            // Pick the stores in the same order for the same session number
+            int sessionNumber = UnityEPL.GetSessionNumber();
+            System.Random seededRandom = new System.Random(sessionNumber);
+            int randomIndex = seededRandom.Next(0, stores.Count);
+            return stores[randomIndex];
+        }
+        else
+        {
+            int NUM_CLOSE_STORES = 3;
 
-        // Debug.Log("Sorted Stores: " + string.Join(", ", stores));
+            if (stores == null || stores.Count == 0)
+                throw new ArgumentException("There are no stores in provided list");
+            // Debug.Log("Unvisited Stores: " + string.Join(", ", stores));
 
-        int numStoresToChooseFrom = Math.Min(NUM_CLOSE_STORES, stores.Count() - 1);
-        return stores[rng.Next(numStoresToChooseFrom)];
+            var tempStores = NonVisibleStores(stores);
+            if (tempStores.Count == 0)
+                goto PickStore;
+            else
+                stores = tempStores;
+            // Debug.Log("NonVisible Stores: " + string.Join(", ", stores));
+
+            tempStores = StoresNotBehindPlayer(stores);
+            if (tempStores.Count == 0)
+                goto PickStore;
+            else
+                stores = tempStores;
+            // Debug.Log("Not Behind Player Stores: " + string.Join(", ", stores));
+
+            PickStore:
+            stores.Sort((store1, store2) =>
+            {
+                float dist1 = UnityEngine.Vector3.Distance(playerMovement.gameObject.transform.position, store1.transform.position);
+                float dist2 = UnityEngine.Vector3.Distance(playerMovement.gameObject.transform.position, store2.transform.position);
+                if (dist1 == dist2) return 0;
+                else if (dist1 < dist2) return -1;
+                else return 1;
+            });
+
+            // Debug.Log("Sorted Stores: " + string.Join(", ", stores));
+
+            int numStoresToChooseFrom = Math.Min(NUM_CLOSE_STORES, stores.Count() - 1);
+            return stores[rng.Next(numStoresToChooseFrom)];
+        }
     }
 
 
@@ -3086,10 +3261,10 @@ public class DeliveryExperiment : CoroutineExperiment
                 return store.GetStoreName();
         throw new UnityException("That store game object doesn't exist in the stores list.");
     }
-
+    NavMeshPath path;
     private float CalculateDistance(Transform target)
     {
-        NavMeshPath path = new NavMeshPath();
+        path = new NavMeshPath();
         float dist = 0;
 
         if (NavMesh.CalculatePath(target.position, player.transform.position, NavMesh.AllAreas, path))
@@ -3107,6 +3282,120 @@ public class DeliveryExperiment : CoroutineExperiment
         return dist;
     }
 
+    Vector3 GetPointAheadOnPath(Vector3 currentPosition, float distance)
+    {
+        float remainingDistance = distance;
+
+        for (int i = 0; i < path.corners.Length - 1; i++)
+        {
+            Vector3 start = path.corners[i];
+            Vector3 end = path.corners[i + 1];
+            float segmentDistance = Vector3.Distance(start, end);
+
+            if (remainingDistance <= segmentDistance)
+            {
+                return Vector3.Lerp(start, end, remainingDistance / segmentDistance);
+            }
+
+            remainingDistance -= segmentDistance;
+        }
+        return Vector3.one;
+    }
+
+    bool IsInLineOfSight(Vector3 start, Vector3 end, Transform target)
+    {
+        Vector3 direction = end - start;
+        float distance = direction.magnitude;
+
+        RaycastHit hit;
+        if (Physics.Raycast(start, direction, out hit, distance))
+        {
+            if (hit.transform == target)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void PlayCurrentObjectSound()
+    {
+        StartCoroutine(PlaySound());
+    }
+
+    IEnumerator PlaySound()
+    {
+        yield return new WaitForSeconds(0.2f);
+        audioPlayback.Play();
+    }
+
+    private void AtPreviousItemLocation(string itemName, float angle)
+    {
+        // adding the previous item's name to the file
+        itemName = itemName.Replace("(Clone)", "").Trim();
+        string txtFilepath = System.IO.Path.Combine(UnityEPL.GetDataPath(), continuousTrialNumber.ToString() + ".txt");
+        AppendWordToLst(txtFilepath, ConvertToUnderscoreWord(audioPlayback.clip.name) +  ": (" + ConvertToUnderscoreWord(itemName) + ", " + GetFormattedTimestamp() + ")");
+        //Debug.Log(audioPlayback.clip.name + ": (" + itemName + ", " + GetFormattedTimestamp() + ")");
+
+        var previousItemInfo = new Dictionary<string, object>() {   {"trial number", continuousTrialNumber},
+                                                                    {"item to deliver", ConvertToUnderscoreWord(audioPlayback.clip.name)},
+                                                                    {"previously delivered item seen", ConvertToUnderscoreWord(itemName)},
+                                                                    {"Angle of Approach", angle},
+                                                                    {"Timestamp", GetFormattedTimestamp() } };
+
+        scriptedEventReporter.ReportScriptedEvent("Object Reinstatement", previousItemInfo);
+    }
+
+    private string GetFormattedTimestamp()
+    {
+        return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    }
+
+    private void ClearSpawnedItems()
+    {
+        foreach (GameObject item in spawnedItemList)
+        {
+            if (item != null) 
+            {
+                Destroy(item);
+            }
+        }
+        spawnedItemList.Clear();
+    }
+
+    private IEnumerator CompleteObjectDelivery()
+    {
+        // a delay is needed to ensure that the next item to deliver is available
+        yield return new WaitForSeconds(1.5f);
+        OnObjectDelivered?.Invoke();
+    }
+
+    private float GetRandomDistance(float dist)
+    {
+        System.Random rng = new System.Random(sessionNumber);
+        minInterval = 0.3f * Mathf.Exp(-dist) + 0.2f;
+        maxInterval = 0.3f * (1 - Mathf.Exp(-dist)) + 0.5f;
+        float minSpawnDistance = dist * minInterval;
+        float maxSpawnDistance = dist * maxInterval;
+        double randomValue = rng.NextDouble();
+        float randomDistance = Mathf.Lerp(minSpawnDistance, maxSpawnDistance, (float)randomValue);
+        return randomDistance;
+    }
+
+    public string ConvertToUnderscoreWord(string input)
+    {
+        string lowerInput = input.ToLower().Replace(" ", "");
+        if (wordMap.ContainsKey(lowerInput))
+        {
+            return wordMap[lowerInput];
+        }
+        return input;
+    }
 }
 
 public static class IListExtensions
